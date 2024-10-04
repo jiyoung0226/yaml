@@ -60,7 +60,7 @@ spec:
               app: tomcat
               name: index
       containers:
-        - image:590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/tomcat-index
+        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/tomcat-index
           name: tomcat-index-deploy
           ports:
             - containerPort: 8080
