@@ -1,8 +1,3 @@
-### v1.0  ###
-#접속 빈도 : index > films purchase > join login mypage
-#추후 수정 : resources, RollingUpdate, affinity weight, livenessProbe
-#수정 여부 : X
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,7 +24,6 @@ spec:
     spec:
       affinity:
         podAffinity:
-          #preferredDuringSchedulingIgnoredDuringExecution
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
@@ -41,9 +35,9 @@ spec:
                     operator: In
                     values:
                       - index
-              topologyKey: "kubernetes.io/hostname" #topology.kubernetes.io/zone
+              topologyKey: "kubernetes.io/hostname"
               namespaces:
-                - tomcat
+                - tomcat  # 'tomcat' 네임스페이스에 있는 pod에 대한 affinity 설정
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
@@ -134,7 +128,7 @@ spec:
                       - films
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - image: /nginx-films:v1.0
+        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/nginx-films
           name: films
           ports:
             - containerPort: 80
@@ -240,6 +234,7 @@ spec:
         - name: html
           persistentVolumeClaim:
             claimName: pvc-nginx
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -372,113 +367,4 @@ spec:
               topologyKey: "kubernetes.io/hostname"
 
       containers:
-        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/nginx-login
-          name: login
-          ports:
-            - containerPort: 80
-          volumeMounts:
-            - mountPath: "/usr/share/nginx/html/data"
-              name: html
-          resources:
-            limits:
-              cpu: 200m
-              memory: 250Mi
-            requests:
-              cpu: 100m
-              memory: 150Mi
-          livenessProbe:
-            httpGet:
-              path: /login.jsp
-              port: 80
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            timeoutSeconds: 1
-            successThreshold: 1
-            failureThreshold: 3
-      volumes:
-        - name: html
-          persistentVolumeClaim:
-            claimName: pvc-nginx
-
-
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: deploy-mypage
-  namespace: nginx
-  annotations:
-    kubernetes.io/change-cause: first_version
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: nginx
-      name: mypage
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-  template:
-    metadata:
-      labels:
-        app: nginx
-        name: mypage
-    spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - tomcat
-                  - key: name
-                    operator: In
-                    values:
-                      - mypage
-              topologyKey: "kubernetes.io/hostname"
-              namespaces:
-                - tomcat
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: name
-                    operator: In
-                    values:
-                      - mypage
-              topologyKey: "kubernetes.io/hostname"
-      containers:
-        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/nginx-mypage
-          name: mypage
-          ports:
-            - containerPort: 80
-          volumeMounts:
-            - mountPath: "/usr/share/nginx/html/data"
-              name: html
-          resources:
-            limits:
-              cpu: 200m
-              memory: 250Mi
-            requests:
-              cpu: 100m
-              memory: 150Mi
-          livenessProbe:
-            httpGet:
-              path: /mypage.jsp
-              port: 80
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            timeoutSeconds: 1
-            successThreshold: 1
-            failureThreshold: 3
-      volumes:
-        - name: html
-          persistentVolumeClaim:
-            claimName: pvc-nginx
-
-
+        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/nginx
