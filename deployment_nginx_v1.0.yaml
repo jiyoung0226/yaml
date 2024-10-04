@@ -367,4 +367,4 @@ spec:
               topologyKey: "kubernetes.io/hostname"
 
       containers:
-        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/nginx
+        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/nginx-login
