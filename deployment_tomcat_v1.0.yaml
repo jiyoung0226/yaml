@@ -60,7 +60,7 @@ spec:
               app: tomcat
               name: index
       containers:
-        - image:590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/tomcat-index
+        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/tomcat-index
           name: tomcat-index-deploy
           ports:
             - containerPort: 8080
@@ -69,8 +69,8 @@ spec:
               name: html
           resources:
             limits:
-              cpu: 200m
-              memory: 250Mi
+              cpu: 300m  # nginx보다 높은 리소스 설정
+              memory: 512Mi
             requests:
               cpu: 200m
               memory: 250Mi
@@ -154,8 +154,8 @@ spec:
               name: html
           resources:
             limits:
-              cpu: 200m
-              memory: 250Mi
+              cpu: 300m  # nginx보다 높은 리소스 설정
+              memory: 512Mi
             requests:
               cpu: 100m
               memory: 150Mi
@@ -239,8 +239,8 @@ spec:
               name: html
           resources:
             limits:
-              cpu: 200m
-              memory: 250Mi
+              cpu: 300m  # nginx보다 높은 리소스 설정
+              memory: 512Mi
             requests:
               cpu: 100m
               memory: 150Mi
@@ -258,7 +258,6 @@ spec:
           persistentVolumeClaim:
             claimName: pvc-tomcat
 
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -267,252 +266,3 @@ metadata:
   namespace: tomcat
   annotations:
     kubernetes.io/change-cause: first_version
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: tomcat
-      name: join
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-  template:
-    metadata:
-      labels:
-        app: tomcat
-        name: join
-    spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - tomcat
-                    - key: name
-                      operator: In
-                      values:
-                        - join
-                topologyKey: topology.kubernetes.io/zone
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: "kubernetes.io/hostname"
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app: tomcat
-              name: join
-        - maxSkew: 1
-          topologyKey: "topology.kubernetes.io/zone"
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app: tomcat
-              name: join
-      containers:
-        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/tomcat-join
-          name: tomcat-join-deploy
-          ports:
-            - containerPort: 8080
-          volumeMounts:
-            - mountPath: "/opt/tomcat/webapps/ROOT/data"
-              name: html
-          resources:
-            limits:
-              cpu: 200m
-              memory: 250Mi
-            requests:
-              cpu: 100m
-              memory: 150Mi
-          livenessProbe:
-            httpGet:
-              path: /join.jsp
-              port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            timeoutSeconds: 1
-            successThreshold: 1
-            failureThreshold: 3
-      volumes:
-        - name: html
-          persistentVolumeClaim:
-            claimName: pvc-tomcat
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tomcat-login
-  namespace: tomcat
-  annotations:
-    kubernetes.io/change-cause: first_version
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: tomcat
-      name: login
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-  template:
-    metadata:
-      labels:
-        app: tomcat
-        name: login
-    spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - tomcat
-                    - key: name
-                      operator: In
-                      values:
-                        - login
-                topologyKey: topology.kubernetes.io/zone
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: "kubernetes.io/hostname"
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app: tomcat
-              name: login
-        - maxSkew: 1
-          topologyKey: "topology.kubernetes.io/zone"
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app: tomcat
-              name: login
-      containers:
-        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/tomcat-login
-          name: tomcat-login-deploy
-          ports:
-            - containerPort: 8080
-          volumeMounts:
-            - mountPath: "/opt/tomcat/webapps/ROOT/data"
-              name: html
-          resources:
-            limits:
-              cpu: 200m
-              memory: 250Mi
-            requests:
-              cpu: 100m
-              memory: 150Mi
-          livenessProbe:
-            httpGet:
-              path: /login.jsp
-              port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            timeoutSeconds: 1
-            successThreshold: 1
-            failureThreshold: 3
-      volumes:
-        - name: html
-          persistentVolumeClaim:
-            claimName: pvc-tomcat
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tomcat-mypage
-  namespace: tomcat
-  annotations:
-    kubernetes.io/change-cause: first_version
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: tomcat
-      name: mypage
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-  template:
-    metadata:
-      labels:
-        app: tomcat
-        name: mypage
-    spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - tomcat
-                    - key: name
-                      operator: In
-                      values:
-                        - mypage
-                topologyKey: topology.kubernetes.io/zone
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: "kubernetes.io/hostname"
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app: tomcat
-              name: mypage
-        - maxSkew: 1
-          topologyKey: "topology.kubernetes.io/zone"
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app: tomcat
-              name: mypage
-
-      containers:
-        - image: 590183985022.dkr.ecr.ap-northeast-2.amazonaws.com/tomcat-mypage
-          name: tomcat-mypage-deploy
-          ports:
-            - containerPort: 8080
-          volumeMounts:
-            - mountPath: "/opt/tomcat/webapps/ROOT/data"
-              name: html
-          resources:
-            limits:
-              cpu: 200m
-              memory: 250Mi
-            requests:
-              cpu: 100m
-              memory: 150Mi
-          livenessProbe:
-            httpGet:
-              path: /mypage.jsp
-              port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            timeoutSeconds: 1
-            successThreshold: 1
-            failureThreshold: 3
-      volumes:
-        - name: html
-          persistentVolumeClaim:
-            claimName: pvc-tomcat
-
-
